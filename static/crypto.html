@@ -28,7 +28,7 @@
       align-items: center;
       justify-content: center;
   }
-  input[type="text"]{
+  input{
       width: 40%;
       height: 48px;
       margin: 10px;
@@ -39,7 +39,7 @@
       font-family: 'Arsenal', sans-serif;
       padding: 3px;
   }
-  input[type="text"]:focus{
+  input:focus{
       box-shadow: 0px 3px rgba(0,0,0, .3);
       transform: translateY(-3px);
   }
@@ -67,9 +67,9 @@
 
     <div class="wrapper">
         <h1>Crypto REST</h1>
-        <input type="text" value="EDEEF0">
-        <input type="text" id="input">
-        <input type="text" id="output">
+        <input type="number" id="key" placeholder="Ключ для шифрования (число от -33 до 33)">
+        <input type="text" id="input" placeholder="Текст для шифрования">
+        <input type="text" id="output" placeholder="Зашифрованный текст">
         <a href="" class="goBtn" onclick="getRequest()">Go</a>
         <span id="error"></span>
     </div>
@@ -87,41 +87,60 @@
         let out = $("#output").val()
         let key = $("#key").val()
 
-        if(inp == "" && out == ""){
-            $("#error").html("Введите текст для шифровки или дешифровки!")
-        } else {
-            if(inp != "" && out != ""){
-                $("#error").html("Очистите одно из полей!")
-            } else {
-                if (inp != ""){
-                    let urlS = "http://localhost:9097/getCrypto?key="+key+"&input=" + inp
+        if(inp != "" && out == ""){
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:9097/getCrypto?key="+key+"&input="+inp,
+                dataType: "json",
+                beforeSend: function(){
+                    $("#error").val("Шифрование данных...")
+                },
+                success: function(answer){
+                    $("#output").val(answer["Output"])
+                    $("#error").val("Данные зашифрованы: " + answer["Output"])
                 }
-                if (out != "") {
-                    let urlS = "http://localhost:9097/getCrypto?key="+key+"&output=" + out
-                } 
-
-                $.ajax({
-                    type: "GET",
-                    url: "http://localhost:9097/getCrypto?key=edeef0&input=" + inp,
-                    dataType: "json",
-                    beforeSend: function(){
-                        $("#error").css({"color" : "black"}).html("Шифруем данные...")
-                    },
-                    success: function(data){
-                        $("#input").val(data["DecryptedInput"])
-                        $("#output").val(data["Output"])
-                        $("#error").css({"color" : "green"}).html("Готово")
-                    }
-                })
-
-            }
+            })
         }
+
+        if(out != "" && inp == ""){
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:9097/getCrypto?key="+key+"&output="+out,
+                dataType: "json",
+                beforeSend: function(){
+                    $("#error").val("Шифрование данных...")
+                },
+                success: function(answer){
+                    $("#input").val(answer["Input"])
+                    $("#error").val("Данные расшифрованы: " + answer["Input"])
+                }
+            })
+        }
+
       }
 
       $(document).ready(function(){
+
           $(".goBtn").click(function(event){
               event.preventDefault()
           })
+
+        let inp = $("#input").val()
+        let out = $("#output").val()
+        let key = $("#key").val()
+        
+        $("#input").change(function(){
+           if($("#input") != ""){
+            $("#output").val("")
+           }
+        })
+
+        $("#output").change(function(){
+           if($("#output") != ""){
+            $("#input").val("")
+           }
+        })
+
       })
 
   </script>
