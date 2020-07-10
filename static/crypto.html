@@ -67,7 +67,7 @@
 
     <div class="wrapper">
         <h1>Crypto REST</h1>
-        <input type="number" id="key" placeholder="Ключ для шифрования (число от -33 до 33)">
+        <input type="text" id="key" placeholder="Ключ для шифрования (0-9 a-f)">
         <input type="text" id="input" placeholder="Текст для шифрования">
         <input type="text" id="output" placeholder="Зашифрованный текст">
         <a href="" class="goBtn" onclick="getRequest()">Go</a>
@@ -117,6 +117,22 @@
             })
         }
 
+        if(inp != "" && out != ""){
+          $("#output").val("")
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:9097/getCrypto?key="+key+"&input="+inp,
+                dataType: "json",
+                beforeSend: function(){
+                    $("#error").val("Шифрование данных...")
+                },
+                success: function(answer){
+                    $("#output").val(answer["Output"])
+                    $("#error").val("Данные зашифрованы: " + answer["Output"])
+                }
+            })
+        }
+
       }
 
       $(document).ready(function(){
@@ -129,18 +145,6 @@
         let out = $("#output").val()
         let key = $("#key").val()
         
-        $("#input").change(function(){
-           if($("#input") != ""){
-            $("#output").val("")
-           }
-        })
-
-        $("#output").change(function(){
-           if($("#output") != ""){
-            $("#input").val("")
-           }
-        })
-
       })
 
   </script>
